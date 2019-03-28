@@ -1,5 +1,188 @@
 from brian2 import *
 
+def pellet():
+    controlStim = ExtracellStim("Control")
+    i = float(4)
+    pelletSize = arange(5,10)
+    pelletTime = zeros(len(pelletSize))
+    for i in range(len(pelletSize)):
+        out = MotilityModel_CES(controlStim, 'moderate', 'deterministic', pelletSize[i])
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            pelletTime[i] = out['Transit_time']
+        
+    Y = range(len(pelletSize))
+    for i in range(len(pelletSize)):
+        Y[i] = float(1/pelletTime[i]-1/pelletTime[2])/(1/pelletTime[2])*100
+    
+    P=figure()
+    plot(pelletSize,Y,'sk')
+    xlim([pelletSize[0]-0.5, pelletSize[len(pelletSize)-1]+0.5])
+    title('Pellet velocity vs. diameter')
+    ylabel('Pellet velocity (% change)')
+    xlabel('Pellet diameter (mm)')
+            
+    return {'Fig': P, 'Pellet size': pelletSize, 'Transit time': pelletTime}
+
+def stochastic(intensity="moderate"):
+    maxIt = 9
+    print("Begin.")
+    controlStim = ExtracellStim("Control")
+    sine05Stim = ExtracellStim("Sine",0.5)
+    sine5Stim = ExtracellStim("Sine",5)    
+    sine50Stim = ExtracellStim("Sine",50)
+    pulse05Stim = ExtracellStim("Pulse",0.5)
+    pulse14Stim = ExtracellStim("Pulse",14)
+    print("Imported all stimulation waveforms.")
+    print('\n')
+    controlSpeed = zeros(maxIt)
+    sine05Speed = zeros(maxIt)
+    sine5Speed = zeros(maxIt)
+    sine50Speed = zeros(maxIt)
+    pulse05Speed = zeros(maxIt)
+    pulse14Speed = zeros(maxIt)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(controlStim, intensity, 'stochastic')
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            controlSpeed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Control: ', t)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(sine05Stim, intensity, 'stochastic')  
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            sine05Speed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Sine 0.5 Hz: ', t)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(sine5Stim, intensity, 'stochastic')  
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            sine5Speed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Sine 5 Hz: ', t)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(sine50Stim, intensity, 'stochastic')  
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            sine50Speed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Sine 50 Hz: ', t)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(pulse05Stim, intensity, 'stochastic') 
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            pulse05Speed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Pulse 0.5 Hz: ', t)
+    t = 0
+    while (t < maxIt):
+        out = MotilityModel_CES(pulse14Stim, intensity, 'stochastic')   
+        print(out['Transit_time'])
+        if isinstance(out['Transit_time'],float):
+            pulse14Speed[t] = 1/float(out['Transit_time'])
+            t = t + 1
+        print('Pulse 14 Hz: ', t)
+    
+    
+    Xname = range(6)
+    Xname[0] = 'Control'
+    Xname[1] = 'Sine 0.5 Hz'
+    Xname[2] = 'Sine 5 Hz'
+    Xname[3] = 'Sine 50 Hz'
+    Xname[4] = 'Pulse 0.5 Hz'
+    Xname[5] = 'Pulse 14 Hz'    
+    
+    norm = mean(controlSpeed)
+    
+    controlSpeed = controlSpeed/norm*100
+    sine05Speed = sine05Speed/norm*100
+    sine5Speed = sine5Speed/norm*100
+    sine50Speed = sine50Speed/norm*100
+    pulse05Speed = pulse05Speed/norm*100
+    pulse14Speed = pulse14Speed/norm*100            
+                                        
+    controlMean = mean(controlSpeed)
+    controlSEM = std(controlSpeed)/sqrt(len(controlSpeed)-1)
+    sine05Mean = mean(sine05Speed)
+    sine05SEM = std(sine05Speed)/sqrt(len(sine05Speed)-1)
+    sine5Mean = mean(sine5Speed)
+    sine5SEM = std(sine5Speed)/sqrt(len(sine5Speed)-1)
+    sine50Mean = mean(sine50Speed)
+    sine50SEM = std(sine50Speed)/sqrt(len(sine50Speed)-1)
+    pulse05Mean = mean(pulse05Speed)
+    pulse05SEM = std(pulse05Speed)/sqrt(len(pulse05Speed)-1)
+    pulse14Mean = mean(pulse14Speed)
+    pulse14SEM = std(pulse14Speed)/sqrt(len(pulse14Speed)-1)
+    
+    MEANs = [controlMean, sine05Mean, sine5Mean, sine50Mean, pulse05Mean, pulse14Mean]
+    SEMs = [controlSEM, sine05SEM, sine5SEM, sine50SEM, pulse05SEM, pulse14SEM]
+    
+    D = figure()
+    errorbar(range(6),MEANs,SEMs,zeros(6),'sk')
+    plot([-0.5,5.5],[100,100],'--k')
+    xlim([-0.5, 5.5])
+    ylim([0, 150])
+    xticks(range(6),Xname)
+    title('Stochastic Model')
+    ylabel('Motility speed (% control)')
+    
+    return {'Fig': D, 'means': MEANs, 'sems': SEMs, 'Control': controlSpeed, 'Sine 0.5 Hz': sine05Speed, 'Sine 5 Hz': sine5Speed, 'Sine 50 Hz': sine50Speed, 'Pulse 0.5 Hz': pulse05Speed, 'Pulse 14 Hz': pulse14Speed}
+    
+
+def deterministic(intensity="moderate"):
+    print("Begin.")
+    controlStim = ExtracellStim("Control")
+    sine05Stim = ExtracellStim("Sine",0.5)
+    sine5Stim = ExtracellStim("Sine",5)    
+    sine50Stim = ExtracellStim("Sine",50)
+    pulse05Stim = ExtracellStim("Pulse",0.5)
+    pulse14Stim = ExtracellStim("Pulse",14)
+    print("Imported all stimulation waveforms.")
+    print('\n')
+    control = MotilityModel_CES(controlStim, intensity) 
+    sine05 = MotilityModel_CES(sine05Stim, intensity)
+    sine5 = MotilityModel_CES(sine5Stim, intensity)
+    sine50 = MotilityModel_CES(sine50Stim, intensity)
+    pulse05 = MotilityModel_CES(pulse05Stim, intensity)  
+    pulse14 = MotilityModel_CES(pulse14Stim, intensity)  
+    print("Ran all simulations.")
+    print('\n')
+    Xname = range(6)
+    Xname[0] = 'Control'
+    Xname[1] = 'Sine 0.5 Hz'
+    Xname[2] = 'Sine 5 Hz'
+    Xname[3] = 'Sine 50 Hz'
+    Xname[4] = 'Pulse 0.5 Hz'
+    Xname[5] = 'Pulse 14 Hz'
+    
+    Y = range(6)
+    Y[0] = float(control['Transit_time'])
+    Y[1] = Y[0]/float(sine05['Transit_time']) * 100
+    Y[2] = Y[0]/float(sine5['Transit_time']) * 100
+    Y[3] = Y[0]/float(sine50['Transit_time']) * 100
+    Y[4] = Y[0]/float(pulse05['Transit_time']) * 100
+    Y[5] = Y[0]/float(pulse14['Transit_time']) * 100
+    Y[0] = 100.0
+    
+    D=figure()
+    plot(range(6),Y,'sk')
+    plot([-0.5,5.5],[100,100],'--k')
+    xlim([-0.5, 5.5])
+    ylim([0, 150])
+    xticks(range(6),Xname)
+    title('Deterministic Model')
+    ylabel('Motility speed (% control)')
+    
+    return {'Fig': D, 'Control': control, 'Sine 0.5 Hz': sine05, 'Sine 5 Hz': sine5, 'Sine 50 Hz': sine50, 'Pulse 0.5 Hz': pulse05, 'Pulse 14 Hz': pulse14}
+    
+    
 def ExtracellStim(pattern, freq=0.5, amp=-1, pw=200, phase=0, dur=50):
     dtime = defaultclock.dt
     frequency = float(freq) * Hz
@@ -7,8 +190,6 @@ def ExtracellStim(pattern, freq=0.5, amp=-1, pw=200, phase=0, dur=50):
     pulseWidth = float(pw) * us
     duration = float(dur) * second
     shift = (1 / frequency) * float(phase) / (2 * pi) / dtime
-    
-    print 'Stimulation vector duration:', dur,'s'
     
     if pattern == "Sine":
         G = arange(0,duration/dtime) * dtime
@@ -38,142 +219,31 @@ def ExtracellStim(pattern, freq=0.5, amp=-1, pw=200, phase=0, dur=50):
     
     
     
-    
-def pellet():
-    controlStim = ExtracellStim("Control")
-    i = float(4)
-    pelletSize = arange(1,5)
-    pelletTime = zeros(len(pelletSize))
-    for i in range(len(pelletSize)):
-        out = MotilityModel_CES(controlStim, 'moderate', 'deterministic', pelletSize[i])
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            pelletTime[i] = out['Transit_time']
-    return {'Pellet size': pelletSize, 'Transit time': pelletTime}
-    #===============================================================================
-    
-    
-    
-
-def deterministic(advanced="moderate"):
-    print "Begin."
-    controlStim = ExtracellStim("Control")
-    sine05Stim = ExtracellStim("Sine",0.5)
-    sine5Stim = ExtracellStim("Sine",5)    
-    sine50Stim = ExtracellStim("Sine",50)
-    pulse05Stim = ExtracellStim("Pulse",0.5)
-    pulse14Stim = ExtracellStim("Pulse",14)
-    print "Imported all stimulation waveforms."
-    print '\n'
-    control = MotilityModel_CES(controlStim, advanced) 
-    sine05 = MotilityModel_CES(sine05Stim, advanced)
-    sine5 = MotilityModel_CES(sine5Stim, advanced)
-    sine50 = MotilityModel_CES(sine50Stim, advanced)
-    pulse05 = MotilityModel_CES(pulse05Stim, advanced)  
-    pulse14 = MotilityModel_CES(pulse14Stim, advanced)  
-    print "Ran all simulations."
-    print '\n'
-    return {'Control': control, 'Sine 0.5 Hz': sine05, 'Sine 5 Hz': sine5, 'Sine 50 Hz': sine50, 'Pulse 0.5 Hz': pulse05, 'Pulse 14 Hz': pulse14}
-    #===============================================================================
-    
-    
-    
-
-def stochastic(advanced="moderate"):
-    print "Begin."
-    controlStim = ExtracellStim("Control")
-    sine05Stim = ExtracellStim("Sine",0.5)
-    sine5Stim = ExtracellStim("Sine",5)    
-    sine50Stim = ExtracellStim("Sine",50)
-    pulse05Stim = ExtracellStim("Pulse",0.5)
-    pulse14Stim = ExtracellStim("Pulse",14)
-    print "Imported all stimulation waveforms."
-    print '\n'
-    controlTime = zeros(10)
-    sine05Time = zeros(10)
-    sine5Time = zeros(10)
-    sine50Time = zeros(10)
-    pulse05Time = zeros(10)
-    pulse14Time = zeros(10)
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(controlStim, advanced, 'stochastic')
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            controlTime[t] = out['Transit_time']
-        print 'Control: ', t   
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(sine05Stim, advanced, 'stochastic')  
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            sine05Time[t] = out['Transit_time']
-        print 'Sine 0.5 Hz: ', t
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(sine5Stim, advanced, 'stochastic')  
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            sine5Time[t] = out['Transit_time']
-        print 'Sine 5 Hz: ', t
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(sine50Stim, advanced, 'stochastic')  
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            sine50Time[t] = out['Transit_time']
-        print 'Sine 50 Hz: ', t
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(pulse05Stim, advanced, 'stochastic') 
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            pulse05Time[t] = out['Transit_time']
-        print 'Pulse 0.5 Hz: ', t
-    t = 0
-    while (t < 9):
-        out = MotilityModel_CES(pulse14Stim, advanced, 'stochastic')   
-        print out['Transit_time']
-        if isinstance(out['Transit_time'],float):
-            t = t + 1
-            pulse14Time[t] = out['Transit_time']
-        print 'Pulse 14 Hz: ', t
-    return {'Control': controlTime, 'Sine 0.5 Hz': sine05Time, 'Sine 5 Hz': sine5Time, 'Sine 50 Hz': sine50Time, 'Pulse 0.5 Hz': pulse05Time, 'Pulse 14 Hz': pulse14Time}
-    #===============================================================================
-    
-    
-    
-    
-def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletDiam=7):
+def MotilityModel_CES(stimPackage, intensity="low", mode="deterministic", pelletDiam=7):
     # Motility model with colonic electrical stimulation
     #_______________________________________________________________________________
     
     
-    # advanced parameter select
+    # Intensity parameter select
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if advanced != "low":
+    if intensity != "low":
         SNrefract = 1 * ms
         SNthreshold = 'v > 30 * mV and norm < 0 * volt/second'
         eqs_AH = '''
         I_AH = gAH * (E_AH - v) : amp
         SensoryStrength = (1 / (exp(-(Pdiam/mm-5))+49)/0.02) + 0.6 : 1
         '''
-        if advanced == "high":
+        if intensity == "high":
             gEJPmax = 20 * usiemens
             gIJPmax = 30 * usiemens 
             refract = 1 * ms
             scaleFactor = 1
-        else: #advanced == "moderate"
+        else: #intensity == "moderate"
             gEJPmax = 12 * usiemens
             gIJPmax = 18 * usiemens   
             refract = 7 * ms
             scaleFactor = 0.1
-    else: #advanced == "low"
+    else: #intensity == "low"
         mode="deterministic"
         gEJPmax = 10 * usiemens
         gIJPmax = 15 * usiemens 
@@ -573,7 +643,7 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
     deltaX = x_pre - x_post : meter
     deltaY = y_pre - y_post : meter
     Cm_syn = Cm_area_post : farad * meter**-2
-    w = 1 / (4 * pi * sigma) * (2 * deltaX**2 - deltaY**2) / (deltaX**2 + deltaY**2)**(5/2) : ohm * meter**-2
+    w = 1 / (4 * pi * sigma) * (2 * deltaX**2 - deltaY**2) / (deltaX**2 + deltaY**2)**(5/2) : 1 / siemens
     Stim_post = (1 / (ri * Cm_syn)) * w * iStim_pre : volt / second (summed)   
     '''
     
@@ -606,7 +676,7 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
     MEA_SN.connect()
     
     
-    # Stochastic and more complicated "advanced" mechanisms        
+    # Stochastic and more complicated "intense" mechanisms        
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if mode=="stochastic":
         sEMN = PoissonGroup(muscle_pop, scaleFactor * 1 * Hz)
@@ -616,7 +686,7 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
         sEJP.connect(j='i')
         sIJP.connect(j='i')
         
-    if advanced != "low":
+    if intensity != "low":
         # Extrinsic feedback implementation
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
@@ -674,14 +744,14 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
         MEA_Efferent = Synapses(MEA, Efferent, eqs_Extracellular)
         MEA_Efferent.connect()
         
-        if advanced == "high":                   
+        if intensity == "high":                   
             EJP_CM.delay='5*ms'     
             IJP_CM.delay='5*ms'    
             AI_ECMN.delay='100*ms'  
             DI_ICMN.delay='100*ms'
             SN_AI.delay='5*ms'
             SN_DI.delay='5*ms'
-        else: # advanced == "moderate"               
+        else: # intensity == "moderate"               
             EJP_CM.delay='1*ms'     
             IJP_CM.delay='1*ms'    
             AI_ECMN.delay='20*ms'  
@@ -700,8 +770,6 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
     if max(mP.x[0])/cm < length/cm:
         transittime="Incomplete"
     
-    print 'Transit time:', transittime,'s'
-    
     A=figure()
     plot(sSN.t/second,sSN.i * length/cm / neuron_pop,'*k')
     plot(mP.t/second,(mP.x[0]-offset)/cm,'-b')
@@ -711,6 +779,6 @@ def MotilityModel_CES(stimPackage, advanced="low", mode="deterministic", pelletD
     title(stimPackage['Name'])
     xlabel('Time (s)')
     ylabel('Position (cm)')
+    plt.close()
 
     return {'Fig': A, 'Transit_time': transittime, 'Name': stimPackage['Name']}
-    #===============================================================================
