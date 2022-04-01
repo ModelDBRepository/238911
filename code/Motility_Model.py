@@ -1,4 +1,5 @@
 from brian2 import *
+import matplotlib.pyplot as plt
 
 def pellet():
     controlStim = ExtracellStim("Control")
@@ -571,7 +572,7 @@ def MotilityModel_CES(stimPackage, intensity="low", mode="deterministic", pellet
     
     # Electrode Parameters
     num_electrodes = 1
-    sigma = 0.3 * siemens / meter              # Resistivity of extracellular field
+    sigma = 0.3 * siemens / meter           # Resistivity of extracellular field
     ri = 100 * ohm
     stimCurrent = stimPackage['Stim']
     mag = -1 * mA

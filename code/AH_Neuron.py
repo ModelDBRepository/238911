@@ -1,5 +1,5 @@
 from brian2 import *
-
+import matplotlib.pyplot as plt
 # Setup Parameters
 duration = 520*ms
 neuron_pop = 2
