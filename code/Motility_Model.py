@@ -276,7 +276,7 @@ def MotilityModel_CES(stimPackage, intensity="low", mode="deterministic", pellet
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     # ICC Parameters
-    C_ICC = 4 * nfarad
+    C_ICC = 4 * nfarad 
     Erest_ICC = -65 * mV
     Grest_ICC = 81 * nsiemens
     Eprim = -20 * mV
