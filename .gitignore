@@ -5,6 +5,7 @@ __pycache__/
 *$py.class
 
 # IDE specific 
+<<<<<<< HEAD
 .DS_STORE
 .idea/
 brain2-2.0rc3/
@@ -14,6 +15,13 @@ conda/
 /.vscode/
 /.DS_Store
 /.idea/
+=======
+/.DS_Store
+/.idea/
+/.vsconfig/
+/.vscode/
+
+>>>>>>> eb1ce1636b7447f8d939bdf202b0a7a1c52523f7
 
 # C extensions
 *.so
@@ -169,4 +177,21 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+<<<<<<< HEAD
 #.idea/
+=======
+#.idea/
+© 2022 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
+>>>>>>> eb1ce1636b7447f8d939bdf202b0a7a1c52523f7
