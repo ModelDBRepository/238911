@@ -5,11 +5,11 @@ __pycache__/
 *$py.class
 
 # IDE specific 
-.DS_STORE
-.idea/
-brain2-2.0rc3/
-code/var/
-conda/
+/.DS_Store
+/.idea/
+/.vsconfig/
+/.vscode/
+
 
 # C extensions
 *.so
