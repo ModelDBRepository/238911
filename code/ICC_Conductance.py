@@ -594,5 +594,5 @@ if __name__ == "__main__":
     controlStim = ExtracellStim("Control")
     conductance = [50, 81, 100, 200]
     for i in range(len(conductance)):
-        control = MotilityModel_CES(conductance[i])
+        control = MotilityModel_CES(controlStim,conductance[i])
         control['Fig'].show()
