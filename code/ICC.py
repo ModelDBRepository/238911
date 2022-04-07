@@ -74,7 +74,7 @@ def MPofICC(conductance = 81):
     ICC.Cm = C_ICC
 
     pre=10*second
-    stimmag =3 * nA
+    stimmag =0 * nA
     run(pre, report = 'text')
     run(10*second, report = 'text')
     run(10*second, report = 'text')
