@@ -2,7 +2,7 @@ from brian2 import *
 import matplotlib
 
 
-def MPofICC(conductance = 81):
+def MPofICC(conductance = 35):
     # Setup Parameters
     duration = 30*second
     neuron_pop = 12               # Neuron cells / group
@@ -33,9 +33,9 @@ def MPofICC(conductance = 81):
     area = 20000 * umetre**2
     C_ICC = 4 * nfarad
     Erest_ICC = -65 * mV
-    Grest_ICC = conductance * nsiemens
+    Grest_ICC = 81 * nsiemens
     Eprim = -20 * mV
-    Gprim = 35 * usiemens
+    Gprim = conductance * usiemens
     tauAicc = 0.15 * second
 
     # ICC Equations
@@ -90,6 +90,6 @@ def MPofICC(conductance = 81):
 
     return A
 
-conductance = [50, 81, 100, 200]
+conductance = [5, 25, 35]
 for i in range(len(conductance)):
     MPofICC(conductance[i]).show()
