@@ -36,7 +36,7 @@ def ExtracellStim(pattern, freq=0.5, amp=-1, pw=200, phase=0, dur=50):
     return {'Amp': amplitude, 'Stim': stimulus, 'Duration': duration, 'Name': string}
     # ===============================================================================
 
-def MotilityModel_CES(stimPackage,conductance = 81, intensity="moderate", mode="deterministic", pelletDiam=7):
+def MotilityModel_CES(stimPackage,conductance = 35, intensity="moderate", mode="deterministic", pelletDiam=7):
     # Motility model with colonic electrical stimulation
     # _______________________________________________________________________________
 
@@ -92,9 +92,9 @@ def MotilityModel_CES(stimPackage,conductance = 81, intensity="moderate", mode="
     # ICC Parameters
     C_ICC = 4 * nfarad
     Erest_ICC = -65 * mV
-    Grest_ICC = conductance * nsiemens
+    Grest_ICC = 81 * nsiemens
     Eprim = -20 * mV
-    Gprim = 35 * usiemens
+    Gprim = conductance * usiemens
     tauAicc = 0.15 * second
 
     # ICC Equations
@@ -592,7 +592,7 @@ def MotilityModel_CES(stimPackage,conductance = 81, intensity="moderate", mode="
 
 if __name__ == "__main__":
     controlStim = ExtracellStim("Control")
-    conductance = [50, 81, 100, 200]
+    conductance = [5, 25, 35]
     for i in range(len(conductance)):
         control = MotilityModel_CES(controlStim,conductance[i])
         control['Fig'].show()
