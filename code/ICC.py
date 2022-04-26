@@ -1,5 +1,5 @@
 from brian2 import *
-import matplotlib
+import matplotlib.pyplot as plt
 
 
 def MPofICC(conductance = 35):
@@ -81,7 +81,7 @@ def MPofICC(conductance = 35):
     run(10*second, report = 'text')
 
     A = figure()
-    title('ICC without Stimulation')
+    title('ICC without Stimulation at {} uS conductance'.format(conductance))
     plot((mICC.t - pre)/second,mICC.v[0]/mV,'-b')
     ylim([-80, 60])
     xlim([0, duration/second])
@@ -93,3 +93,5 @@ def MPofICC(conductance = 35):
 conductance = [5, 25, 35]
 for i in range(len(conductance)):
     MPofICC(conductance[i]).show()
+
+plt.show()
